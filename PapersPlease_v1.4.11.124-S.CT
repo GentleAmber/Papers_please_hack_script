@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="52">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"Auto_Fact_Check"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+alloc(newmem,48,"GameAssembly.dll"+47ABD3)
+label(returnhere)
+label(originalcode)
+label(exit)
+
+{$lua}
+if syntaxcheck then return end
+print("====== For Papers, please v1.4.11.124-S ======")
+print("========== Made by Amber ==========")
+print("[Guide]: Stamp \"approved\" for every entrant first. Error will be printed if there's any. Then you can stamp \"Denied\" to overwrite former decision or do other things (e.g. interrogate).\nError message will be produced whenever a stamp is made or when the papers are handed back to the entrants.")
+print("\nWaiting for fact check...\n")
+{$asm}
+
+newmem:
+{$LUACODE strptr=RAX}
+if strptr ~= nil and strptr ~= 0 then
+  local out = {}
+  local offset = 0x14   -- skip klass/monitor/length header, start of UTF-16 chars
+  while offset &lt; 0xA4 do
+    local code = readSmallInteger(strptr + offset)
+    if code == nil then break end
+    if code == 0 then break end                  -- "00 00" terminator
+    if code &lt; 256 then
+      table.insert(out, string.char(code))
+    else
+      table.insert(out, "?")
+    end
+    offset = offset + 2
+  end
+  if #out &gt; 0 then
+    print("[FactCheck] " .. table.concat(out))
+  end
+end
+{$ASM}
+
+originalcode:
+mov r9,rax
+test r14b,r14b
+
+exit:
+jmp returnhere
+
+"GameAssembly.dll"+47ABD3:
+jmp newmem
+nop
+returnhere:
+
+
+[DISABLE]
+dealloc(newmem)
+"GameAssembly.dll"+47ABD3:
+db 4C 8B C8 45 84 F6
+//mov r9,rax
+//test r14b,r14b
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
